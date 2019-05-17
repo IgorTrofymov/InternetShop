@@ -7,6 +7,6 @@ namespace InternetShop.DAL.Models
 {
     public class User : IdentityUser
     {
-
+        public DateTime Year { get; set; }
     }
 }

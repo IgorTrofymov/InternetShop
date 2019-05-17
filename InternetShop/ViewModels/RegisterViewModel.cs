@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 
 namespace InternetShop.ViewModels
@@ -12,7 +13,7 @@ namespace InternetShop.ViewModels
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Please enter your Name")]
+        //[Required(ErrorMessage = "Please enter your Name")]
         [Display(Name="User name")]
         public string Name { get; set; }
 
@@ -29,6 +30,9 @@ namespace InternetShop.ViewModels
         [DataType(DataType.PhoneNumber)]
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
+
+        [Display(Name = "Date of birth")]
+        public DateTime Year { get; set; }
 
 
     }

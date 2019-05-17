@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-InternetShop-B3E45B4B-7FB9-4608-BAEC-7E1B114DA202</UserSecretsId>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DLL\BLL.csproj" />
+    <ProjectReference Include="..\InternetShop.BLL\InternetShop.BLL.csproj" />
     <ProjectReference Include="..\InternetShop.DAL\DAL.csproj" />
   </ItemGroup>
 

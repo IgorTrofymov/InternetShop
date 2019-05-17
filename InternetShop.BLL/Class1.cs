@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DLL
+namespace InternetShop.BLL
 {
     public class Class1
     {

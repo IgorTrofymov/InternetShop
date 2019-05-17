@@ -1,7 +1,8 @@
+@using InternetShop.DAL.Models
 @using Microsoft.AspNetCore.Identity
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -19,7 +20,8 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+        <li><a asp-action="Register" asp-controller="Account">Register</a></li>
         <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+        <li><a asp-area="Identity" asp-page="/Account/Logout">Logout</a></li>
     </ul>
 }

@@ -8,4 +8,9 @@
     <ProjectReference Include="..\InternetShop.DAL\DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+    <Folder Include="Service\" />
+  </ItemGroup>
+
 </Project>
