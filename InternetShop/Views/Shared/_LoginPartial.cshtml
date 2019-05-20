@@ -1,27 +1,23 @@
 @using InternetShop.DAL.Models
 @using Microsoft.AspNetCore.Identity
 
-@inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
-@if (SignInManager.IsSignedIn(User))
+@if (UserManager.GetUserName(User)!=null)
 {
-    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm" class="navbar-right">
+    <div>
         <ul class="nav navbar-nav navbar-right">
             <li>
-                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+                    Hello @UserManager.GetUserName(User)!
             </li>
-            <li>
-                <button type="submit" class="btn btn-link navbar-btn navbar-link">Logout</button>
-            </li>
+            <li><a asp-controller="Account" asp-action="Logout">Logout</a></li>
         </ul>
-    </form>
+    </div>
 }
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li><a asp-action="Register" asp-controller="Account">Register</a></li>
-        <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
-        <li><a asp-area="Identity" asp-page="/Account/Logout">Logout</a></li>
+        <li><a asp-controller="Account" >Register</a></li>
+        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
     </ul>
 }

@@ -52,21 +52,26 @@ namespace InternetShop.BLL.Services
 
         public async  Task<ClaimsIdentity> Authenticate(UserDTO userDto )
         {
-            int age = DateTime.Now.Year - userDto.Year.Year;
-            var claims = new List<Claim>
+            User user = await  userManager.FindByEmailAsync(userDto.Email);
+            //signInManager.PasswordSignInAsync(userDto.UserName, userDto.Password, false, false);
+            var claims = new List<Claim>();
+            if (await userManager.CheckPasswordAsync(user, userDto.Password))
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userDto.Email),
-                //new Claim(ClaimsIdentity.DefaultRoleClaimType, userDto.Role?.Name),
-                new Claim(ClaimTypes.Email, userDto.Email),
-                //new Claim("age",age.ToString()),
-                //new Claim("trueornot",age>=18?"true":"false"),
-                new Claim(ClaimTypes.DateOfBirth, userDto.Year.ToString())
-            };
-            var userRoles = await  userManager.GetRolesAsync( await  userManager.FindByEmailAsync(userDto.Email));
-            foreach (var role in userRoles)
-            {
-                claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role));
+                claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email));
+                    //new Claim(ClaimsIdentity.DefaultRoleClaimType, userDto.Role?.Name),
+                    claims.Add(new Claim(ClaimTypes.Email, user.Email));
+                    //new Claim("age",age.ToString()),
+                    //new Claim("trueornot",age>=18?"true":"false"),
+                   claims.Add( new Claim(ClaimTypes.DateOfBirth, user.Year.ToString()));
+                
+                var userRoles = await userManager.GetRolesAsync(await userManager.FindByEmailAsync(user.Email));
+                foreach (var role in userRoles)
+                {
+                    claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role));
+                }
+
             }
+           
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie",
                 ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             return id;

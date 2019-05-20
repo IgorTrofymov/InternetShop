@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BotDetect.Web;
 using InternetShop.BLL.Interfaces;
 using InternetShop.BLL.Services;
 using Microsoft.AspNetCore.Builder;
@@ -79,7 +80,8 @@ namespace InternetShop
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             //services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationContext>();
-
+            services.AddMemoryCache();
+            services.AddSession(options => options.IdleTimeout = TimeSpan.FromMinutes(20));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -96,6 +98,9 @@ namespace InternetShop
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            app.UseSession();
+            app.UseCaptcha(Configuration);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

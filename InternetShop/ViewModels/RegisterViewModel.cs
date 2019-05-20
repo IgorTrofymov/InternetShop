@@ -34,6 +34,8 @@ namespace InternetShop.ViewModels
         [Display(Name = "Date of birth")]
         public DateTime Year { get; set; }
 
+        public string CaptchaCode { get; set; }
+
 
     }
 }

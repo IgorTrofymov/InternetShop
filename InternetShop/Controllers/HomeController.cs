@@ -22,7 +22,7 @@ namespace InternetShop.Controllers
 
             return View();
         }
-        [Authorize(Policy = "GmailOnly")]
+        //[Authorize(Policy = "GmailOnly")]
         [Authorize(Roles = "baseUser")]
         public IActionResult Contact()
         {

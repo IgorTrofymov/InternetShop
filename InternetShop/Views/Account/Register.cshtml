@@ -1,6 +1,12 @@
-﻿@model InternetShop.ViewModels.RegisterViewModel
-<h2>Регистрация нового пользователя</h2>
-<form method="post" asp-controller="Account" asp-action="Register">
+﻿@using BotDetect.Web.Mvc
+@model InternetShop.ViewModels.RegisterViewModel
+@section header {
+
+    <link href="@BotDetect.Web.CaptchaUrls.Absolute.LayoutStyleSheetUrl"
+          rel="stylesheet" type="text/css" /> }
+<h2>Register new user</h2>
+
+<form method="post" asp-controller="Account" asp-action="Register" asp-anti-forgery="true">
     <div asp-validation-summary="ModelOnly"></div>
     <div>
         <label asp-for="Email"></label><br />
@@ -21,6 +27,17 @@
         <label asp-for="ConfirmPassword"></label><br />
         <input asp-for="ConfirmPassword" />
         <span asp-validation-for="ConfirmPassword"></span>
+    </div>
+    <div>
+        <captcha id="UserRegisterCaptcha" user-input-id="CaptchaCode" />
+        <div class="actions">
+            <input asp-for="CaptchaCode" />
+            <span asp-validation-for="CaptchaCode"></span>
+            @if ((Context.Request.Method.ToUpper() == "POST") && ViewData.ModelState.IsValid)
+            {
+                <span class="correct">Correct!</span>
+            }
+        </div>
     </div>
     <div>
         <input type="submit" value="Регистрация" />
