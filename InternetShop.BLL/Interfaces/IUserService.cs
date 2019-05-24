@@ -8,7 +8,7 @@ using InternetShop.BLL.Infrastructure;
 
 namespace InternetShop.BLL.Interfaces
 {
-    public interface IUserService : IDisposable
+    public interface IUserService 
     {
         Task<OperationDetails> Create(UserDTO userDto);
         Task<ClaimsIdentity> Authenticate(UserDTO userDto);

@@ -15,22 +15,15 @@ namespace InternetShop.BLL.Services
     public class UserService : IUserService
     {
         private ApplicationContext db;
-        private RoleManager<IdentityRole> roleManager;
         private UserManager<User> userManager;
-        private SignInManager<User> signInManager;
 
-        public UserService(ApplicationContext db, RoleManager<IdentityRole> role, UserManager<User> userManager, SignInManager<User> signInManager)
+        public UserService(ApplicationContext db, UserManager<User> userManager)
         {
             this.db = db;
-            this.roleManager = role;
             this.userManager = userManager;
-            this.signInManager = signInManager;
 
         }
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+
 
         public async Task<OperationDetails> Create(UserDTO userDto)
         {
