@@ -11,7 +11,7 @@ namespace InternetShop.BLL.Interfaces
     public interface IUserService : IDisposable
     {
         Task<OperationDetails> Create(UserDTO userDto);
-        Task<ClaimsIdentity> Authenticate(UserDTO userDto);
+        Task<List<Claim>> Authenticate(UserDTO userDto);
 
         Task SetInitialData(UserDTO adminDto, List<string> roles);
     }
