@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using BotDetect.Web;
@@ -16,10 +17,15 @@ using InternetShop.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using InternetShop.DAL.Models;
+using InternetShop.Middleware;
+using InternetShop.WEB.Models;
 using InternetShop.WEB.Requirements;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+
 
 namespace InternetShop
 {
@@ -41,10 +47,27 @@ namespace InternetShop
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b=>b.MigrationsAssembly("InternetShop.WEB")));
 
             services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddTransient<IAuthorizationHandler, AgeRequirementHandler>();
+                .AddEntityFrameworkStores<ApplicationContext>().AddDefaultTokenProviders();
+             
+                JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = AuthOptions.Issuer,
+                        ValidAudience = AuthOptions.Audience,
+                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+                    services.AddTransient<IAuthorizationHandler, AgeRequirementHandler>();
             services.AddTransient<IAuthorizationHandler, EmailRequirementHandler>();
             services.AddTransient<UserService>();
 
@@ -54,23 +77,22 @@ namespace InternetShop
             //        options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Register");
             //        options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Register");
             //    });
-            services.ConfigureApplicationCookie(options => {
-                // Cookie settings
-                //options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                // If the LoginPath isn't set, ASP.NET Core defaults 
-                // the path to /Account/Login.
-                options.LoginPath = "/Account/Register";
-                // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
-                // the path to /Account/AccessDenied.
-                options.AccessDeniedPath = "/Account/Register";
-                options.SlidingExpiration = true;
-
-            });
+            //services.ConfigureApplicationCookie(options => {
+            //    // Cookie settings
+            //    //options.Cookie.HttpOnly = true;
+            //    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+            //    // If the LoginPath isn't set, ASP.NET Core defaults 
+            //    // the path to /Account/Login.
+            //    options.LoginPath = "/Account/Login";
+            //    // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
+            //    // the path to /Account/AccessDenied.
+            //    options.AccessDeniedPath = "/Account/Login";
+            //    options.SlidingExpiration = true;
+            //});
             services.AddAuthorization(opt =>
             {
                 opt.AddPolicy("AgeLimit", pol => pol.Requirements.Add(new AgeRequirement(30)));
-                opt.AddPolicy("GmailOnly",pol=>pol.Requirements.Add(new EmailRequirement("gmail.com")));
+                opt.AddPolicy("GmailOnly", pol => pol.Requirements.Add(new EmailRequirement("gmail.com")));
             });
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -102,10 +124,13 @@ namespace InternetShop
             app.UseSession();
             app.UseCaptcha(Configuration);
 
-            app.UseHttpsRedirection();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
+            app.UseToken();
+
+            app.UseRedirectUnautorize();
             app.UseAuthentication();
 
             app.UseMvc(routes =>

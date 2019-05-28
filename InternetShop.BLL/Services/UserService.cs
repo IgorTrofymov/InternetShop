@@ -43,7 +43,7 @@ namespace InternetShop.BLL.Services
                 return new OperationDetails(false, "This email is already busy","Email");
         }
 
-        public async  Task<ClaimsIdentity> Authenticate(UserDTO userDto )
+        public async  Task<List<Claim>> Authenticate(UserDTO userDto )
         {
             User user = await  userManager.FindByEmailAsync(userDto.Email);
             //signInManager.PasswordSignInAsync(userDto.UserName, userDto.Password, false, false);
@@ -64,10 +64,10 @@ namespace InternetShop.BLL.Services
                 }
 
             }
-           
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie",
-                ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            return id;
+
+          await  signInManager.PasswordSignInAsync(user, userDto.Password, userDto.RememberMe, false);
+
+            return claims;
 
         }
 

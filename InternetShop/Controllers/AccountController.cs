@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using BotDetect.Web.Mvc;
+﻿using BotDetect.Web.Mvc;
 using InternetShop.BLL.DTO;
 using InternetShop.BLL.Infrastructure;
-using InternetShop.BLL.Interfaces;
 using InternetShop.BLL.Services;
 using InternetShop.DAL.Models;
 using InternetShop.ViewModels;
+using InternetShop.WEB.Models;
 using InternetShop.WEB.ViewModels;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
 
 namespace InternetShop.WEB.Controllers
 {
@@ -23,7 +24,7 @@ namespace InternetShop.WEB.Controllers
         private UserService userService;
         private SignInManager<User> signInManager;
         private UserManager<User> userManager;
-        
+
 
         public AccountController(UserService userService, SignInManager<User> signInManager, UserManager<User> user)
         {
@@ -46,7 +47,6 @@ namespace InternetShop.WEB.Controllers
             string validatingInstanceId = mvcCaptcha.WebCaptcha.ValidatingInstanceId;
             if (mvcCaptcha.Validate(model.CaptchaCode, validatingInstanceId))
             {
-
                 if (ModelState.IsValid)
                 {
                     UserDTO userDto = new UserDTO
@@ -62,11 +62,12 @@ namespace InternetShop.WEB.Controllers
                     OperationDetails operationDetails = await userService.Create(userDto);
                     if (operationDetails.Succeeded)
                     {
-                        var claimPrincipals = HttpContext.User;
-                        ClaimsIdentity claim = await userService.Authenticate(userDto);
-                        await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claim));
+                        var claims = await userService.Authenticate(userDto);
+                        string token = await GenerateJwtToken(claims);
+                        Response.Cookies.Append("Authorization", "Bearer " + token, new CookieOptions() { IsEssential = true });
                         return RedirectToAction("Index", "Home");
                     }
+                    else ModelState.AddModelError(operationDetails.Property, operationDetails.Message);
                 }
                 else
                 {
@@ -77,7 +78,7 @@ namespace InternetShop.WEB.Controllers
             else
             {
                 MvcCaptcha.ResetCaptcha("UserRegisterCaptcha");
-                ModelState.AddModelError("CaptchaCode","Incorrect!");
+                ModelState.AddModelError("CaptchaCode", "Incorrect!");
             }
 
             return View(model);
@@ -98,43 +99,48 @@ namespace InternetShop.WEB.Controllers
                 {
                     Email = model.Email,
                     UserName = model.Email,
-                    Password = model.Password
+                    Password = model.Password,
+                    RememberMe = model.RememberMe
                 };
-                ClaimsIdentity claim = await userService.Authenticate(userDto);
-                string name = claim.Name;
-                if (name != null)
-                {
-                    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claim));
-                    return RedirectToAction("Index", "Home");
-                }
-                else { ModelState.AddModelError("", "Email or pass is incorrect");}
+                List<Claim> claims =await userService.Authenticate(userDto);
+                   string token = await GenerateJwtToken(claims);
 
+                   Response.Cookies.Append("Authorization", "Bearer " + token, new CookieOptions() { IsEssential = true });
+
+                return RedirectToAction("Index", "Home");
             }
             else
             {
-                ModelState.AddModelError("","Email isn't entered");
+                ModelState.AddModelError("", "Email or pass is incorrect");
+                throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
             }
+        }
 
-            return View(model);
+
+        private async Task<string> GenerateJwtToken(List<Claim> claims)
+        {
+            
+            //signInManager.PasswordSignInAsync(userDto.UserName, userDto.Password, false, false);
+           
+            var key = AuthOptions.GetSymmetricSecurityKey();
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(AuthOptions.Lifetime));
+
+            var token = new JwtSecurityToken(
+                AuthOptions.Issuer,
+                AuthOptions.Audience,
+                claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public IActionResult Logout()
         {
-            ClaimsIdentity id = new ClaimsIdentity();
-            HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(id));
+            Response.Cookies.Delete("Authorization");
             return RedirectToAction("Login");
         }
 
-        async Task Authenticate(User user, IdentityRole role)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name),
-                new Claim(ClaimTypes.DateOfBirth, user.Year.ToString())
-            };
-            await signInManager.PasswordSignInAsync("asd", "asd", false, false);
-        }
     }
-
 }

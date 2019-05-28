@@ -11,5 +11,6 @@ namespace InternetShop.BLL.DTO
         public string Password { get; set; }
         public string UserName { get; set; }
         public DateTime Year { get; set; }
+        public bool RememberMe { get; set; }
     }
 }
