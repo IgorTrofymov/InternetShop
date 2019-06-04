@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,11 +17,12 @@ namespace InternetShop.BLL.Services
     {
         private ApplicationContext db;
         private UserManager<User> userManager;
-
-        public UserService(ApplicationContext db, UserManager<User> userManager)
+        private SignInManager<User> signInManager;
+        public UserService(ApplicationContext db, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             this.db = db;
             this.userManager = userManager;
+            this.signInManager = signInManager;
 
         }
 
@@ -74,6 +76,13 @@ namespace InternetShop.BLL.Services
         public Task SetInitialData(UserDTO adminDto, List<string> roles)
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<UserDTO> GetAll()
+        {
+            List<UserDTO> usersDto = new List<UserDTO>();
+            db.Users.ToList().ForEach(u=>usersDto.Add(new UserDTO{ Email = u.Email,UserName = u.UserName, Year = u.Year}));
+            return usersDto;
         }
     }
 }

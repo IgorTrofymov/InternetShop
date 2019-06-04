@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InternetShop.BLL.DTO;
@@ -10,5 +11,6 @@ namespace InternetShop.BLL.Interfaces
     public interface IService<T>
     {
         Task<OperationDetails> Create(T item);
+        IEnumerable<T> GetAll();
     }
 }

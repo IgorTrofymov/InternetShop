@@ -1,0 +1,19 @@
+﻿@using InternetShop.WEB.ViewModels
+@model InternetShop.WEB.ViewModels.SeededCategories
+
+@if (Model.Categories.Where(s => s.ParentId == Model.Seed).Any())
+{
+    <ul class="list-group">
+        @foreach (var node in Model.Categories)
+        {
+            if (node.ParentId == Model.Seed)
+            {
+                SeededCategories inner = new SeededCategories {Seed = node.Id, Categories = Model.Categories};
+                @*<li class="list-group-item">*@
+                    <a class="list-group-item list-group-item-action @(Model.Seed == null ? "active" : "")" href="!@node.Id">@node.Name</a>
+                    @Html.Partial("_TreeCategories", inner)
+                @*</li>*@
+            }
+        }
+    </ul>
+}

@@ -4,11 +4,11 @@ using System.Text;
 
 namespace InternetShop.DAL.Interfaces
 {
-    interface IRepositiry<T> where T:class
+    public interface IRepositiry<T> where T:class
     {
         IEnumerable<T> GetAll();
         T Get(string id);
-        IEnumerable<T> Find(Func<T, Boolean> predicate);
+        //IEnumerable<T> Find(Func<T, Boolean> predicate);
         void Create(T item);
         void Update(T item);
         void Delete(string id);

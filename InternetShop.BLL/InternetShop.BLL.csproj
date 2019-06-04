@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Convertor\Convertor.csproj" />
     <ProjectReference Include="..\InternetShop.DAL\DAL.csproj" />
   </ItemGroup>
 

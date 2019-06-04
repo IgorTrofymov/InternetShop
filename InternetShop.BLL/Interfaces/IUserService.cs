@@ -8,9 +8,8 @@ using InternetShop.BLL.Infrastructure;
 
 namespace InternetShop.BLL.Interfaces
 {
-    public interface IUserService 
+    public interface IUserService :IService<UserDTO>
     {
-        Task<OperationDetails> Create(UserDTO userDto);
         Task<List<Claim>> Authenticate(UserDTO userDto);
 
         Task SetInitialData(UserDTO adminDto, List<string> roles);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Convertor.ModelToDTO;
 using DAL.Models;
 using DAL.Repositories;
 using InternetShop.BLL.DTO;
@@ -36,35 +37,28 @@ namespace InternetShop.BLL.Services
             return Task.FromResult(new OperationDetails(true, "there is already such product", "Name"));
         }
 
-        public IEnumerable<ProductDTO> GetAll()
+        public IEnumerable<ProductDTO> GetSome(ProdFilter filter)
         {
-            List<ProductDTO> list = new List<ProductDTO>();
-            repository.GetAll().ToList().ForEach(c =>
-           {
-               list.Add(new ProductDTO
-               {
-                   Name = c.Name, Id = c.ProductId, Description = c.Description, Price = c.Price,
-                   CategoryId = c.CategoryId
-               });
-           });
-            return list;
+            List<Product> prods = repository.GetSome(filter).ToList();
+
+            //this code uses Reflection to convert types
+            var a = ProductConvertor<ProductDTO, Product>.ConvertFromModelToDTO(prods); 
+
+            //this code uses extension method to convert types
+            return prods.GetProdDtos();
         }
 
-        public IEnumerable<ProductDTO> GetSome(Func<ProductDTO, bool> predicate)
+
+
+        IEnumerable<ProductDTO> IService<ProductDTO>.GetAll()
         {
-            List<ProductDTO> list = new List<ProductDTO>();
-            repository.Find(predicate).ToList().ForEach(c =>
+            List<ProductDTO> productDtos = new List<ProductDTO>();
+            repository.GetAll().ToList().ForEach(c=> productDtos.Add(new ProductDTO
             {
-                list.Add(new ProductDTO
-                {
-                    Name = c.Name,
-                    Id = c.ProductId,
-                    Description = c.Description,
-                    Price = c.Price,
-                    CategoryId = c.CategoryId
-                });
-            });
-            return list;
+                CategoryId = c.CategoryId, Name = c.Name, Description = c.Description, Id = c.ProductId
+                , Price = c.Price}
+            ));
+            return productDtos;
         }
     }
 }

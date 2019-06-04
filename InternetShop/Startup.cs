@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using BotDetect.Web;
+using DAL.Repositories;
 using InternetShop.BLL.Interfaces;
 using InternetShop.BLL.Services;
 using Microsoft.AspNetCore.Builder;
@@ -70,6 +71,10 @@ namespace InternetShop
                     services.AddTransient<IAuthorizationHandler, AgeRequirementHandler>();
             services.AddTransient<IAuthorizationHandler, EmailRequirementHandler>();
             services.AddTransient<UserService>();
+            services.AddTransient<CategoryService>();
+            services.AddTransient<ProductService>();
+            services.AddTransient<CategoryRepository>();
+            services.AddTransient<ProductRepository>();
 
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             //    .AddCookie(options =>
@@ -103,6 +108,7 @@ namespace InternetShop
             });
             //services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationContext>();
             services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
             services.AddSession(options => options.IdleTimeout = TimeSpan.FromMinutes(20));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
